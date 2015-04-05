@@ -1,3 +1,5 @@
+![alt text](https://travis-ci.org/ozans/op5-cli.svg?branch=master "travis build status")
+
 op5-cli
 ========
 A command-line interface for the OP5 monitoring system using its REST API

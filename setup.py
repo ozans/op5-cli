@@ -4,7 +4,7 @@ except ImportError:
     from distutils.core import setup
 
 setup(
-    name='op5',
+    name='op5-cli',
     version='0.1',
     author='Ozan Safi',
     author_email='ozansafi@gmail.com',

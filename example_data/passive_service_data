@@ -1,0 +1,13 @@
+{
+'host_name': 'test',
+'service_description': 'test',
+'check_period': '24x7',
+'freshness_threshold': "600",
+'max_check_attempts': "3",
+'check_interval': "5",
+'notification_interval': '0',
+'notification_options': 'c,w,u,r,f,s',
+'notification_period': '24x7',
+'retry_interval': '1',
+'template': 'passive-service'
+}

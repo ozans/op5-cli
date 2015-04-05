@@ -1,0 +1,11 @@
+{
+'host_name': 'test',
+'address': '',
+'max_check_attempts': '3',
+'notification_interval': '0',
+'notification_options': 'd,u,r,f,s',
+'notification_period': '24x7',
+'hostgroups': [],
+'contact_groups': [],
+'template': 'default-host-template'
+}

@@ -1,0 +1,172 @@
+#!/usr/bin/python
+
+from op5 import OP5
+import argparse
+import pprint
+import sys
+import yaml #pip install PyYAML
+import json
+import os
+import ast
+
+import logging
+logger = logging.getLogger("op5")
+logger.setLevel(logging.DEBUG)
+
+fh = logging.FileHandler("op5.log")
+fh.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+
+logger.addHandler(fh)
+
+#the system exit codes are up to 255, so I can't use the full range of HTTP status codes as exit codes
+#but I can still return something indicative of the HTTP status code received
+def read(args):
+    if not op5.read(args.object_type,args.object_name):
+        return op5.status_code - 300 if op5.status_code >= 400 else 1
+    else:
+        print json.dumps(op5.data,sort_keys=True,indent=4)
+
+def delete(args):
+    if not op5.delete(args.object_type,args.object_name):
+        return op5.status_code - 300 if op5.status_code >= 400 else 1
+    else:
+        print json.dumps(op5.data,sort_keys=True,indent=4)
+
+def create(args):
+    if not op5.create(args.object_type,args.json_data):
+        return op5.status_code - 300 if op5.status_code >= 400 else 1
+    else:
+        print json.dumps(op5.data,sort_keys=True,indent=4)
+
+def update(args):
+    if not op5.update(args.object_type,args.object_name,args.json_data):
+        return op5.status_code - 300 if op5.status_code >= 400 else 1
+    else:
+        print json.dumps(op5.data,sort_keys=True,indent=4)
+
+def overwrite(args):
+    if not op5.overwrite(args.object_type,args.object_name,args.json_data):
+        return op5.status_code - 300 if op5.status_code >= 400 else 1
+    else:
+        print json.dumps(op5.data,sort_keys=True,indent=4)
+
+def get_changes(args):
+    if not op5.get_changes():
+        return op5.status_code - 300 if op5.status_code >= 400 else 1
+    else:
+        print json.dumps(op5.data,sort_keys=True,indent=4)
+
+def undo_changes(args):
+    if not op5.undo_changes():
+        return op5.status_code - 300 if op5.status_code >= 400 else 1
+    else:
+        print json.dumps(op5.data,sort_keys=True,indent=4)
+
+def commit_changes(args):
+    if not op5.commit_changes(True):
+        return op5.status_code - 300 if op5.status_code >= 400 else 1
+    else:
+        print json.dumps(op5.data,sort_keys=True,indent=4)
+
+def read_config_file():
+    default_cfg_dir = "%s/.config/op5" % os.path.expanduser("~")
+    default_cfg_file = "%s/config.yml" % default_cfg_dir
+
+    if os.path.isfile(default_cfg_file):
+        config_file = default_cfg_file
+    # else create the default config path and create an example config here
+    else:
+        example_cfg={'op5_url':'https://demo.op5.com/api','op5_username':'demo@op5.com','op5_password':'MonitorDemo123'}
+        if not os.path.isdir(default_cfg_dir):
+                os.makedirs(default_cfg_dir)
+        stream = file(default_cfg_file+".example", 'w')
+        yaml.dump(example_cfg,stream,allow_unicode=True,default_flow_style=False)
+
+        print "I could not find a config.yml file, so I created an example "  \
+              "in your home directory at %s/config.yml.example.\nPlease "     \
+              "rename this to config.yml and add the OP5 REST API endpoint "  \
+              "along with the authentication credentials." % default_cfg_dir
+        sys.exit(0)
+    try:
+        config = yaml.load(file(config_file))
+    except IOError:
+        print 'Unable to open config file.  The path for the ' \
+              'config file is ~/.config/op5/config.yml.'
+        sys.exit(1)
+    except Exception:
+        print 'Unable to read config file.  YAML syntax issue, perhaps?'
+        sys.exit(1)
+
+    required_params = ["op5_url","op5_username","op5_password"]
+    if not set(required_params).issubset(config.keys()):
+        print "Required parameters not set: %s\n" % set(required_params) - set(config.keys)
+        sys.exit(1)
+
+    return config
+
+def main():
+    config=read_config_file() 
+
+    parser = argparse.ArgumentParser(description='A command-line interface for the OP5 monitoring system using its REST API')
+    subparsers = parser.add_subparsers()
+
+    valid_object_types = ["host","hostgroup","service","servicegroup","contact","contactgroup","host_template","service_template","contact_template","hostdependency","servicedependency","hostescalation","serviceescalation","user","usergroup","combined_graph","graph_collection","graph_template","management_pack","timeperiod"]
+
+    parser_create = subparsers.add_parser('create')
+    parser_read = subparsers.add_parser('read')
+    parser_update = subparsers.add_parser('update')
+    parser_delete = subparsers.add_parser('delete')
+    parser_overwrite = subparsers.add_parser('overwrite')
+
+    for sp in [parser_create,parser_read,parser_update,parser_delete,parser_overwrite]:
+        sp.add_argument('object_type', action='store', choices=valid_object_types, help='Object type')
+    for sp in [parser_read,parser_update,parser_delete,parser_overwrite]:
+        sp.add_argument('object_name', action='store', help='Object name')
+    for sp in [parser_create,parser_update,parser_overwrite]:
+        sp.add_argument('--data', dest='json_data', action='store', type=ast.literal_eval, required=True, help='Data to be sent in HTTP body in JSON format')
+
+    parser_create.set_defaults(func=create)
+    parser_read.set_defaults(func=read)
+    parser_update.set_defaults(func=update)
+    parser_delete.set_defaults(func=delete)
+    parser_overwrite.set_defaults(func=overwrite)
+
+    parser_getchanges = subparsers.add_parser('get-changes')
+    parser_getchanges.set_defaults(func=get_changes)
+
+    parser_undochanges = subparsers.add_parser('undo-changes')
+    parser_undochanges.set_defaults(func=undo_changes)
+
+    parser_commitchanges = subparsers.add_parser('commit-changes')
+    parser_commitchanges.set_defaults(func=commit_changes)
+
+    subparsers = [parser_create,parser_read,parser_update,parser_delete,parser_overwrite,parser_getchanges,parser_undochanges,parser_commitchanges]
+    for sp in subparsers:
+        sp.add_argument('--dryrun', dest='dryrun', action='store_true', default=False, help='If set, no create/update/delete/overwrite will be performed on the OP5 server')
+        sp.add_argument('--debug', dest='debug', action='store_true', help='If set, output more text')
+
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit(1)
+
+    try:
+        args, unknown = parser.parse_known_args()
+    except Exception as e:
+        import pprint; pprint.pprint(e)
+        return 1
+
+    if len(unknown) > 0:
+        print "INFO: Unknown arguments ignored:",unknown
+
+    if args.debug:
+        fh.setLevel(logging.DEBUG)
+
+    global op5
+    op5 = OP5(config["op5_url"], config["op5_username"], config["op5_password"], dryrun=args.dryrun, debug=args.debug, logtofile=True, interactive=True)
+    return args.func(args)
+
+if __name__ == "__main__":
+    sys.exit(main())
+

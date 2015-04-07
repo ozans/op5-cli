@@ -162,7 +162,7 @@ class OP5(object):
                 name += "?parent_type=hostgroup"
 
         if request_type in ["GET","PATCH","PUT","DELETE"] and object_type != "change":
-            url += "/" + quote(name)
+            url += "/" + quote(name.encode("UTF-8"))
 
         if self.debug:
             text = request_type + " " + url

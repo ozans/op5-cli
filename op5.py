@@ -181,12 +181,13 @@ class OP5(object):
             import pprint; pprint.pprint(e)
             return False
 
-        self.data = json.loads(r.text)
-        self.status_code = r.status_code
         if self.debug:
             print r.status_code
             print r.text
             print r.headers
+
+        self.data = json.loads(r.text)
+        self.status_code = r.status_code
 
         # Do some extra logging in failure cases. #except the 500 Internal Errors
         if r.status_code != 200 and r.status_code != 201 and r.status_code != 500: #200 OK, 201 Created, 500 Internal Error

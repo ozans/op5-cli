@@ -7,11 +7,5 @@
 'notification_period': '24x7',
 'hostgroups': [],
 'contact_groups': [],
-'template': 'default-host-template',
-'check_command': 'check_dummy',
-'check_command_args': '2!"Server is DOWN"!0',
-'obsess': 0,
-'check_freshness': 1,
-'freshness_threshold': 600,
-'active_checks_enabled': 0
+'template': 'passive-host-template'
 }

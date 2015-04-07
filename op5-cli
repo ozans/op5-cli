@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger("op5")
 logger.setLevel(logging.DEBUG)
 
-fh = logging.FileHandler("op5.log")
+fh = logging.FileHandler("/tmp/op5-cli.log")
 fh.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)s - %(funcName)10s() ] %(message)s')
 fh.setFormatter(formatter)

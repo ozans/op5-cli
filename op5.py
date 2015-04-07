@@ -28,37 +28,18 @@ class OP5(object):
         #name will always be set except in the "create" case where everything is in "data"
         text = "%s(%s)" % (request_type,object_type)
         if name != "":
-            text += " name: %s (" % name
+            text += " name: %s" % name
         if not data:
-            if name != "":
-                text += ")"
             return text
 
         #data exists
-        if object_type == "host":
-                if name == "":
-                    text += " name: %s (" % data["host_name"]
-                if "address" in data:
-                    text += "ip='%s'" % data["address"]
-                for field in ["hostgroups","contact_groups","check_command","check_command_args"]:
-                    if field in data:
-                        text += ", "+field+"='%s'" % data[field]
-                text += ")" 
-                return text
-        elif object_type == "hostgroup":
-                if name == "":
-                    text += " name: %s" % data["hostgroup_name"]
-                if "members" in data:
-                    text += " (members='%s')" % str(data["members"])
-                return text
-        elif object_type == "service":
-                if name == "":
-                    text += " name: %s (" % data["service_description"]
-                for field in ["host_name","hostgroup_name","check_command","check_command_args"]:
-                    if field in data:
-                        text += ", "+field+"='%s'" % data[field]
-                text += ")" 
-                return text
+        if object_type in ["host","hostgroup","service"]:
+            text += " ("
+            interesting_fields = ["service_description","host_name","hostgroup_name","address","hostgroups","contact_groups","check_command","check_command_args"]
+            available_fields = filter(lambda x: x in data, interesting_fields)
+            text += ', '.join("%s='%s'" % (key,value) for key, value in [(field,data[field]) for field in available_fields])
+            text += ")"
+            return text
         elif object_type == "change":
             if request_type == "GET":
                 return "Got list of changes"

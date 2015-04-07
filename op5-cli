@@ -72,7 +72,7 @@ def commit_changes(args):
 
 def read_config_file():
     default_cfg_dir = "%s/.config/op5" % os.path.expanduser("~")
-    default_cfg_file = "%s/config.yml" % default_cfg_dir
+    default_cfg_file = "%s/config.yaml" % default_cfg_dir
 
     if os.path.isfile(default_cfg_file):
         config_file = default_cfg_file
@@ -84,16 +84,16 @@ def read_config_file():
         stream = file(default_cfg_file+".example", 'w')
         yaml.dump(example_cfg,stream,allow_unicode=True,default_flow_style=False)
 
-        print "I could not find a config.yml file, so I created an example "  \
-              "in your home directory at %s/config.yml.example.\nPlease "     \
-              "rename this to config.yml and add the OP5 REST API endpoint "  \
+        print "I could not find a config.yaml file, so I created an example "  \
+              "in your home directory at %s/config.yaml.example.\nPlease "     \
+              "rename this to config.yaml and add the OP5 REST API endpoint "  \
               "along with the authentication credentials." % default_cfg_dir
         sys.exit(0)
     try:
         config = yaml.load(file(config_file))
     except IOError:
         print 'Unable to open config file.  The path for the ' \
-              'config file is ~/.config/op5/config.yml.'
+              'config file is ~/.config/op5/config.yaml.'
         sys.exit(1)
     except Exception:
         print 'Unable to read config file.  YAML syntax issue, perhaps?'

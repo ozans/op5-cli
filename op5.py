@@ -193,6 +193,9 @@ class OP5(object):
             self.data = json.loads(r.text)
         except ValueError as e:
             self.data = r.text
+            #GET can return HTTP 200 OK with "index mismatch", but in any other non-success scenario, we should be receiving JSON, and not HTML
+            if r.text.find("index mismatch") != -1 or (r.status_code not in [200,201] and r.headers["content-type"].find("text/html") != -1):
+                raise e
         self.status_code = r.status_code
 
         # Do some extra logging in failure cases. #except the 500 Internal Errors

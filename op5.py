@@ -186,7 +186,10 @@ class OP5(object):
             print r.text
             print r.headers
 
-        self.data = json.loads(r.text)
+        try:
+            self.data = json.loads(r.text)
+        except ValueError as e:
+            self.data = r.text
         self.status_code = r.status_code
 
         # Do some extra logging in failure cases. #except the 500 Internal Errors

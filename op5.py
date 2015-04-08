@@ -213,6 +213,8 @@ class OP5(object):
                     return False
                 time.sleep(6)
                 return self.operation(request_type,object_type,name,data,rdepth)
+            else:
+                raise RuntimeError("Bailing out after 3 retries on HTTP 500 Internal Error")
 
         #success! #200 OK, 201 Created
 

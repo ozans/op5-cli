@@ -101,8 +101,11 @@ class OP5(object):
         if self.read(object_type,name): #get the information currently on the OP5 server
             data_at_destination=self.data
             for key in data_at_source:
-                if data_at_source[key] and (key not in data_at_destination or set(data_at_source[key]) != set(data_at_destination[key])): #if there is at least one diff, using set() diffs here since order is not important
-                    print key,":",data_at_source[key],"did not match", key,":",data_at_destination[key],"! Making an update request."
+                if key not in data_at_destination or set(data_at_source[key]) != set(data_at_destination[key]): #if there is at least one diff, using set() diffs here since order is not important
+                    if self.debug:
+                        print "Data at source:",data_at_source
+                        print "Data at destination:",data_at_destination
+                    print key,":",data_at_source[key],"did not match", key,":",data_at_destination.get(key,None),"! Making an update request."
                     return self.update(object_type,name,data_at_source) #send an update request
         else:
             return self.create(object_type,data_at_source)

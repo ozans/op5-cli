@@ -15,7 +15,7 @@ setup(
     description='A command-line interface for the OP5 monitoring system',
     long_description=open('README.txt').read(),
     install_requires=[
-        "PyYAML==3.11",
+        "PyYAML==5.4",
         "argparse==1.2.1",
         "requests==2.3.0",
         "termcolor==1.1.0"
